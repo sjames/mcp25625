@@ -239,6 +239,26 @@ impl<'a> B0feW<'a> {
         self.bit(false)
     }
     pub fn bit(self, value: bool) -> &'a mut BfpctrlW {
+        self.w.bits = (self.w.bits & !(0b1 << 2)) | (((value as u8) & 0b1) << 2);
+        self.w
+    }
+    pub fn enable(self) -> &'a mut BfpctrlW {
+        self.bit(true)
+    }
+}
+
+pub struct B1feW<'a> {
+    w: &'a mut BfpctrlW
+}
+
+impl<'a> B1feW<'a> {
+    pub fn set_bit(self) -> &'a mut BfpctrlW {
+        self.bit(true)
+    }
+    pub fn clear_bit(self) -> &'a mut BfpctrlW {
+        self.bit(false)
+    }
+    pub fn bit(self, value: bool) -> &'a mut BfpctrlW {
         self.w.bits = (self.w.bits & !(0b1 << 3)) | (((value as u8) & 0b1) << 3);
         self.w
     }
@@ -246,6 +266,7 @@ impl<'a> B0feW<'a> {
         self.bit(true)
     }
 }
+
 ///
 ///
 ///
@@ -303,6 +324,30 @@ impl<'a> B0fmW<'a> {
         self.bit(true)
     }
 }
+
+pub struct B1fmW<'a> {
+    w: &'a mut BfpctrlW
+}
+
+impl<'a> B1fmW<'a> {
+    pub fn set_bit(self) -> &'a mut BfpctrlW {
+        self.bit(true)
+    }
+    pub fn clear_bit(self) -> &'a mut BfpctrlW {
+        self.bit(false)
+    }
+    pub fn bit(self, value: bool) -> &'a mut BfpctrlW {
+        self.w.bits = (self.w.bits & !(0b1 << 1)) | (((value as u8) & 0b1) << 1);
+        self.w
+    }
+    pub fn output(self) -> &'a mut BfpctrlW {
+        self.bit(false)
+    }
+    pub fn interrupt(self) -> &'a mut BfpctrlW {
+        self.bit(true)
+    }
+}
+
 ///
 ///
 
@@ -325,8 +370,20 @@ impl BfpctrlW {
         }
     }
 
+    pub fn b1fe(&mut self) -> B1feW {
+        B1feW {
+            w: self
+        }
+    }
+
     pub fn b0fm(&mut self) -> B0fmW {
         B0fmW {
+            w: self
+        }
+    }
+
+    pub fn b1fm(&mut self) -> B1fmW {
+        B1fmW {
             w: self
         }
     }
@@ -1143,6 +1200,18 @@ impl<E, SPI, CS> MCP25625<SPI, CS>
             }
         };
         self.ral.write_many2(base_address, &[sidh, sidl, eid8, eid0], &[]);
+    }
+
+    pub fn enable_rx0bf_pin(&mut self) {
+        self.ral.write::<BFPCTRL, _>(|w| w
+            .b0fm().interrupt()
+            .b0fe().enable() );
+    }
+
+    pub fn enable_rx1bf_pin(&mut self) {
+        self.ral.write::<BFPCTRL, _>(|w| w
+            .b1fm().interrupt()
+            .b1fe().enable() );
     }
 
     pub fn led_on(&mut self) {
