@@ -1203,14 +1203,12 @@ impl<E, SPI, CS> MCP25625<SPI, CS>
     }
 
     pub fn enable_rx0bf_pin(&mut self) -> u8 {
-        self.ral.bit_modify(BFPCTRL::ADDR, 0b0000_0001, 0b1);
-        self.ral.bit_modify(BFPCTRL::ADDR, 0b0000_0100, 0b0000_0100);
+        self.ral.bit_modify(BFPCTRL::ADDR, 0b0000_0101, 0b0000_0101);
         self.ral.read_reg(BFPCTRL::ADDR)
     }
 
     pub fn enable_rx1bf_pin(&mut self) -> u8 {
-        self.ral.bit_modify(BFPCTRL::ADDR, 0b0000_0010, 0b10);
-        self.ral.bit_modify(BFPCTRL::ADDR, 0b0000_1000, 0b0000_1000);
+        self.ral.bit_modify(BFPCTRL::ADDR, 0b0000_1010, 0b0000_1010);
         self.ral.read_reg(0b0000_1100)
     }
 
